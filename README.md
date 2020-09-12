@@ -6,7 +6,7 @@ Attempting to provide a library wrapper to integrate [BRouter](https://github.co
 Initialise the library to ensure the folder structure with the app and profiles are extracted
 ```
 val dir = context.getExternalFilesDir(null)
-BRouter.initialise(context, dir.toString())
+BRouter.initialise(context, dir)
 ```
 You must manage the segment files as required
 ```
@@ -15,7 +15,7 @@ val segmentDir = BRouter.segmentsFolderPath(dir)
 ```
 Use the Builder to create the parameters class and generate a route
 ```
-val params = RoutingParams.Builder(dir.toString())
+val params = RoutingParams.Builder(dir)
                 .profile(Profile.TREKKING)
                 .from(54.543592, -2.950076)
                 .addVia(54.530371, -3.004975)
