@@ -1,5 +1,6 @@
 package com.routing.brouter
 
+import java.io.File
 import java.util.*
 
 class RoutingParams private constructor(
@@ -25,6 +26,9 @@ class RoutingParams private constructor(
             builder.startDirection, builder.turnInstructionMode.value, builder.maxRunningTime)
 
     class Builder(val baseDirectory: String) {
+
+        constructor(baseDirectory: File) : this(baseDirectory.toString())
+
         var fromLat = 0.0
         var fromLon = 0.0
         var toLat = 0.0

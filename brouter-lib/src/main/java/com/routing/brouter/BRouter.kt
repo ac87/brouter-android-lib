@@ -22,7 +22,7 @@ object BRouter {
      * @param context context
      * @param baseDir base directory for the app i.e. Context.getExternalFilesDir(null)
      */
-    fun initialise(context: Context, baseDir: String) {
+    fun initialise(context: Context, baseDir: File) {
         // make directories
         val routerDir = File(baseDir, BROUTER_ROOT_DIR)
         if (!routerDir.exists()) routerDir.mkdir()

@@ -17,11 +17,11 @@ class BRouterTest {
     @Before
     fun initBRouter() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val dir = appContext.getExternalFilesDir(null)
+        val dir: File = appContext.getExternalFilesDir(null)!!
 
-        BRouter.initialise(appContext, dir.toString())
+        BRouter.initialise(appContext, dir)
 
-        val outputDir = BRouter.segmentsFolderPath(dir!!)
+        val outputDir = BRouter.segmentsFolderPath(dir)
         File(outputDir).mkdirs()
 
         val segmentsAssetDir = "segments"
@@ -33,9 +33,9 @@ class BRouterTest {
     fun generateRouteTest() {
 
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val dir = appContext.getExternalFilesDir(null)
+        val dir = appContext.getExternalFilesDir(null)!!
 
-        val params = RoutingParams.Builder(dir.toString())
+        val params = RoutingParams.Builder(dir)
                 .profile(Profile.TREKKING)
                 .from(54.543592, -2.950076)
                 .addVia(54.530371, -3.004975)
