@@ -32,8 +32,20 @@ allprojects {
             name = "BRouter GitHubPackages"
             url = uri("https://maven.pkg.github.com/abrensch/brouter")
             credentials {
-                username = GITHUB_USERNAME
-                password = GITHUB_TOKEN
+                username = project.properties['GITHUB_USERNAME'] ?: ""
+                // need a package read token from https://github.com/settings/tokens
+                password = project.properties['GITHUB_TOKEN'] ?: ""
+            }
+        }
+        maven {
+            url 'https://api.mapbox.com/downloads/v2/releases/maven'
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = 'mapbox'
+                // need a download token https://account.mapbox.com
+                password = project.properties['MAPBOX_DOWNLOADS_TOKEN'] ?: ""
             }
         }
     }

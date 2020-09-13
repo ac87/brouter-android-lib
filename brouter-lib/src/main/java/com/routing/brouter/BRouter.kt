@@ -94,6 +94,7 @@ object BRouter {
         rc.turnInstructionMode = params.turnInstructionMode
         rc.startDirection = params.startDirection
         rc.nogopoints = nogos
+        rc.alternativeIdx = params.alternateIndex
 
         val waypoints = readPositions(params)
         try {
@@ -122,7 +123,7 @@ object BRouter {
             }*/
             return RouteResult(Exception("Routing error: " + cr.errorMessage))
         }
-        return RouteResult(cr.foundTrack)
+        return RouteResult(cr.alternativeIndex, cr.foundTrack)
     }
 
     /**

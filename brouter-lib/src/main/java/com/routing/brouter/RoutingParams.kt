@@ -15,6 +15,7 @@ class RoutingParams private constructor(
     var startDirection: Int,
     var turnInstructionMode: Int,
     var maxRunningTime: Long,
+    var alternateIndex: Int,
     var validated: Boolean
 ) {
         private constructor(builder: Builder) : this(builder.baseDirectory,
@@ -23,7 +24,7 @@ class RoutingParams private constructor(
             builder.bundledProfile.file, builder.customProfile,
             Util.buildDoubleArray(builder.noGoLats), Util.buildDoubleArray(builder.noGoLons),
             Util.buildDoubleArray(builder.noGoRadis),
-            builder.startDirection, builder.turnInstructionMode.value, builder.maxRunningTime, false)
+            builder.startDirection, builder.turnInstructionMode.value, builder.maxRunningTime, builder.alternateIndex, false)
 
     internal fun validated() {
         validated = true
@@ -47,6 +48,7 @@ class RoutingParams private constructor(
         var turnInstructionMode: TurnInstructionMode = TurnInstructionMode.NONE
         var startDirection = 0
         var maxRunningTime: Long = 60000
+        var alternateIndex: Int = 0
 
         fun from(latitude: Double, longitude: Double) = apply { fromLat = latitude; fromLon = longitude }
 
@@ -65,6 +67,8 @@ class RoutingParams private constructor(
         fun turnInstructions(turnInstructionMode: TurnInstructionMode) = apply { this.turnInstructionMode = turnInstructionMode }
 
         fun maxRunningTime(maxRunningTime: Long) = apply { this.maxRunningTime = maxRunningTime }
+
+        fun alternateIndex(alternateIndex: Int) = apply { this.alternateIndex = alternateIndex }
 
         fun build() = RoutingParams(this)
     }

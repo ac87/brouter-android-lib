@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Example App</string>
+    <!-- Do not use this token anywhere else, it belongs to an account and can be revoked if misused -->
+    <string name="mapbox_access_token">pk.eyJ1IjoiYWpjaGVsbGV3IiwiYSI6ImNpcTc1eThvajAwMWRoc2txaXlkOXhuaXkifQ.6IOhln1xtpljzuI5_RDGUA</string>
+</resources>
