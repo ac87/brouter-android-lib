@@ -5,8 +5,9 @@ import btools.router.OsmNodeNamed
 import btools.router.OsmTrack
 import btools.router.RoutingContext
 import btools.router.RoutingEngine
-import java.io.*
-import java.lang.IllegalArgumentException
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileWriter
 import java.util.*
 
 object BRouter {
@@ -46,6 +47,17 @@ object BRouter {
     }
 
     /**
+     * Get the path for the Profiles directory given a base directory
+     * this is used for copying custom profiles to be used
+     *
+     * @param baseDir base directory for the app i.e. Context.getExternalFilesDir(null)
+     * @return the folder path
+     */
+    fun profilesFolderPath(baseDir: File): String {
+        return File(baseDir, "$BROUTER_ROOT_DIR/$PROFILES_SUB_DIR").toString()
+    }
+
+    /**
      * Generates a route from the given parameters
      * @see RoutingParams.Builder
      *
@@ -58,8 +70,11 @@ object BRouter {
         if (params.lats.isEmpty() || params.lons.isEmpty())
             throw IllegalArgumentException("lats or lons (To/From/Via) must be set")
 
-        if (params.profileFileName.isNullOrEmpty() && params.remoteProfile.isNullOrEmpty())
-            throw IllegalArgumentException("profileFileName or remoteProfile must be set")
+        if (params.bundledProfileFileName.isNullOrEmpty() && params.customProfileFilePath.isNullOrEmpty())
+            throw IllegalArgumentException("bundledProfileFileName or customProfileFilePath must be set")
+
+        if (!params.customProfileFilePath.isNullOrEmpty() && !File(params.customProfileFilePath!!).exists())
+            throw IllegalArgumentException("customProfileFilePath file does not exist")
 
         val baseDir = params.baseDirectory
         if (baseDir.isEmpty()) throw IllegalArgumentException("baseDirectory must be set")
@@ -72,17 +87,17 @@ object BRouter {
         // check profiles folder, if this doesn't exist initialise hasn't been called.
         val profilesDir = File(baseDir, "$BROUTER_ROOT_DIR/$PROFILES_SUB_DIR")
         if (!profilesDir.exists()) throw Exception("'Profiles' directory doesn't exist - Call initialise at least once")
-        val profilesPath = profilesDir.toString()
 
-        val profileName: String = if (params.remoteProfile != null) "remote" else params.profileFileName!!
-        val profilePath = "$baseDir/$BROUTER_ROOT_DIR/$PROFILES_SUB_DIR/$profileName.brf"
-        val rawTrackPath = "$baseDir/$BROUTER_ROOT_DIR/$MODES_SUB_DIR/${profileName}_rawtrack.dat"
-
-        if (params.remoteProfile != null) {
-            val remoteProfile = params.remoteProfile
-            val errMsg = storeRemoteProfile(profilesPath, remoteProfile!!)
-            if (errMsg != null) throw Exception("Remote Profile exception: $errMsg")
+        val profileName: String
+        val profilePath: String
+        if (params.customProfileFilePath != null) {
+            profilePath = params.customProfileFilePath!!
+            profileName = File(profilePath).nameWithoutExtension
+        } else {
+            profileName = params.bundledProfileFileName!!
+            profilePath = "$baseDir/$BROUTER_ROOT_DIR/$PROFILES_SUB_DIR/$profileName.brf"
         }
+        val rawTrackPath = "$baseDir/$BROUTER_ROOT_DIR/$MODES_SUB_DIR/${profileName}_rawtrack.dat"
 
         val nogos = readNogos(params)
         RoutingContext.prepareNogoPoints(nogos)
@@ -122,29 +137,6 @@ object BRouter {
             throw Exception("Routing error: " + cr.errorMessage)
         }
         return cr.foundTrack
-    }
-
-    private fun storeRemoteProfile(profilePath: String, remoteProfile: String): String? {
-        // store profile only if not identical (to preserve timestamp)
-        val profileBytes = remoteProfile.toByteArray()
-        val profileFile = File(profilePath)
-        try {
-            if (!Util.fileEqual(profileBytes, profileFile)) {
-                var os: OutputStream? = null
-                try {
-                    os = FileOutputStream(profileFile)
-                    os.write(profileBytes)
-                } finally {
-                    if (os != null) try {
-                        os.close()
-                    } catch (io: IOException) {
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            return "error caching remote profile: $e"
-        }
-        return null
     }
 
     private fun readPositions(params: RoutingParams): List<OsmNodeNamed> {

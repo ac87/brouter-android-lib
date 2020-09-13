@@ -7,8 +7,8 @@ class RoutingParams private constructor(
     var baseDirectory: String,
     var lats: DoubleArray,
     var lons: DoubleArray,
-    var profileFileName: String?,
-    var remoteProfile: String?,
+    var bundledProfileFileName: String?,
+    var customProfileFilePath: String?,
     val noGoLats: DoubleArray?,
     val noGoLons: DoubleArray?,
     val noGoRadis: DoubleArray?,
@@ -20,7 +20,7 @@ class RoutingParams private constructor(
     private constructor(builder: Builder) : this(builder.baseDirectory,
             Util.buildDoubleArray(builder.fromLat, builder.toLat, builder.viaLats),
             Util.buildDoubleArray(builder.fromLon, builder.toLon, builder.viaLons),
-            builder.profile.file, builder.remoteProfile,
+            builder.bundledProfile.file, builder.customProfile,
             Util.buildDoubleArray(builder.noGoLats), Util.buildDoubleArray(builder.noGoLons),
             Util.buildDoubleArray(builder.noGoRadis),
             builder.startDirection, builder.turnInstructionMode.value, builder.maxRunningTime)
@@ -33,8 +33,8 @@ class RoutingParams private constructor(
         var fromLon = 0.0
         var toLat = 0.0
         var toLon = 0.0
-        var profile = Profile.CAR_FAST
-        var remoteProfile: String? = null
+        var bundledProfile = BundledProfile.CAR_FAST
+        var customProfile: String? = null
         val viaLats: MutableList<Double> = ArrayList()
         val viaLons: MutableList<Double> = ArrayList()
         val noGoLats: MutableList<Double> = ArrayList()
@@ -52,9 +52,9 @@ class RoutingParams private constructor(
 
         fun addNoGo(latitude: Double, longitude: Double, radius: Double) = apply { noGoLats.add(latitude); noGoLons.add(longitude); noGoRadis.add(radius) }
 
-        fun profile(profile: Profile) = apply { this.profile = profile }
+        fun profile(profile: BundledProfile) = apply { this.bundledProfile = profile }
 
-        fun remoteProfile(remoteProfile: String?) = apply { this.remoteProfile = remoteProfile }
+        fun customProfile(customProfile: String?) = apply { this.customProfile = customProfile }
 
         fun startDirection(startDirection: Int) = apply { this.startDirection = startDirection }
 

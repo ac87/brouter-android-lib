@@ -9,7 +9,7 @@ import org.junit.runner.RunWith
 
 import org.junit.Assert.*
 import org.junit.Before
-import java.io.File
+import java.io.*
 
 @RunWith(AndroidJUnit4::class)
 class BRouterTest {
@@ -30,13 +30,13 @@ class BRouterTest {
     }
 
     @Test
-    fun generateRouteTest() {
+    fun generateRouteTest_bundledProfile() {
 
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         val dir = appContext.getExternalFilesDir(null)!!
 
         val params = RoutingParams.Builder(dir)
-                .profile(Profile.TREKKING)
+                .profile(BundledProfile.TREKKING)
                 .from(54.543592, -2.950076)
                 .addVia(54.530371, -3.004975)
                 .to(54.542671, -2.966995)
@@ -46,5 +46,29 @@ class BRouterTest {
 
         assertThat(track, not(nullValue()))
         assertThat(track!!.distance, `is`(9146))
+    }
+
+    @Test
+    fun generateRouteTest_customProfile() {
+
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val dir = appContext.getExternalFilesDir(null)!!
+
+        // for the sake of testing - loading from test assets and saving the file somewhere other than
+        val filename = "hiking.txt"
+        val customProfileFile = "${BRouter.profilesFolderPath(dir)}/$filename"
+        Util.copyAssetFile(appContext, filename, customProfileFile)
+
+        val params = RoutingParams.Builder(dir)
+                .customProfile(customProfileFile)
+                .from(54.543592, -2.950076)
+                .addVia(54.530371, -3.004975)
+                .to(54.542671, -2.966995)
+                .build()
+
+        val track = BRouter.generateRoute(params)
+
+        assertThat(track, not(nullValue()))
+        assertThat(track!!.distance, `is`(8753))
     }
 }
