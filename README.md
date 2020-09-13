@@ -1,6 +1,10 @@
 # brouter-android-lib
 Attempting to provide a library wrapper to integrate [BRouter](https://github.com/abrensch/brouter/) into an Android app
 
+## Compile
+
+In order to compile you will need a Github username and [access token](https://github.com/settings/tokens) to get the packages. The example app uses the Mapbox SDK, which requires a Mapbox [access token](https://docs.mapbox.com/android/maps/overview/) the example app can be removed from the project to avoid the need for this.
+
 ## Usage
 
 Initialise the library to ensure the folder structure with the app and profiles are extracted
@@ -28,3 +32,8 @@ if (result.success)
 else
   // use result.exception
 ```        
+
+## Screenshots
+<img src="screenshots/multiple-car.png" align="left" width="340" />
+<img src="screenshots/single-bike.png" align="left" width="340" />
+Basic example of plotting the data
