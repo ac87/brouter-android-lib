@@ -36,7 +36,7 @@ class BRouterTest {
         val dir = appContext.getExternalFilesDir(null)!!
 
         val params = RoutingParams.Builder(dir)
-                .profile(BundledProfile.TREKKING)
+                .profile(BundledProfile.BIKE_TREKKING)
                 .from(54.543592, -2.950076)
                 .addVia(54.530371, -3.004975)
                 .to(54.542671, -2.966995)

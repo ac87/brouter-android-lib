@@ -8,5 +8,7 @@ package com.routing.brouter
 enum class BundledProfile(val file: String) {
     CAR_FAST("car-fast"),
     CAR_ECO("car-eco"),
-    TREKKING("trekking")
+    BIKE_TREKKING("trekking"),
+    BIKE_FAST("fastbike"),
+    HIKING("hiking")
 }

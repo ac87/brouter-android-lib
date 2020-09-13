@@ -9,7 +9,7 @@ import org.junit.Test
 class UtilUnitTest {
 
     @Test
-    fun `segmentfilename valid`() {
+    fun `segmentFilename valid`() {
         val segment = filenameForSegment(TEST_LAT_1, TEST_LON_1)
         assertThat("W5_N50", `is`(segment))
     }
