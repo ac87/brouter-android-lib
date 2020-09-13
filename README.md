@@ -22,5 +22,9 @@ val params = RoutingParams.Builder(dir)
                 .to(54.542671, -2.966995)
                 .build()
 
-val track = BRouter.generateRoute(params)
+val result = BRouter.generateRoute(params)
+if (result.success) 
+  // use result.track
+else
+  // use result.exception
 ```        
