@@ -16,7 +16,7 @@ val segmentDir = BRouter.segmentsFolderPath(dir)
 Use the Builder to create the parameters class and generate a route
 ```
 val params = RoutingParams.Builder(dir)
-                .profile(Profile.BIKE_TREKKING)
+                .profile(BundledProfile.BIKE_TREKKING)
                 .from(54.543592, -2.950076)
                 .addVia(54.530371, -3.004975)
                 .to(54.542671, -2.966995)
