@@ -2,7 +2,6 @@ package com.routing.brouter
 
 import android.content.Context
 import btools.router.OsmNodeNamed
-import btools.router.OsmTrack
 import btools.router.RoutingContext
 import btools.router.RoutingEngine
 import java.io.BufferedWriter
@@ -64,29 +63,16 @@ object BRouter {
      * @param params route parameter
      * @return The track generated
      */
-    @Throws(Exception::class)
-    fun generateRoute(params: RoutingParams): OsmTrack? {
+    fun generateRoute(params: RoutingParams): RouteResult {
 
-        if (params.lats.isEmpty() || params.lons.isEmpty())
-            throw IllegalArgumentException("lats or lons (To/From/Via) must be set")
-
-        if (params.bundledProfileFileName.isNullOrEmpty() && params.customProfileFilePath.isNullOrEmpty())
-            throw IllegalArgumentException("bundledProfileFileName or customProfileFilePath must be set")
-
-        if (!params.customProfileFilePath.isNullOrEmpty() && !File(params.customProfileFilePath!!).exists())
-            throw IllegalArgumentException("customProfileFilePath file does not exist")
+        if (!params.validated) {
+            val validationResult = validateParams(params)
+            if (!validationResult.success)
+                return RouteResult(validationResult.exception!!)
+        }
 
         val baseDir = params.baseDirectory
-        if (baseDir.isEmpty()) throw IllegalArgumentException("baseDirectory must be set")
-
-        // check segments folder exists, this should be handled by the app.
-        val segmentsDir = File(baseDir, "$BROUTER_ROOT_DIR/$SEGMENTS_SUB_DIR")
-        if (!segmentsDir.exists()) throw Exception("'Segments' directory doesn't exist")
-        val segmentsPath = segmentsDir.toString()
-
-        // check profiles folder, if this doesn't exist initialise hasn't been called.
-        val profilesDir = File(baseDir, "$BROUTER_ROOT_DIR/$PROFILES_SUB_DIR")
-        if (!profilesDir.exists()) throw Exception("'Profiles' directory doesn't exist - Call initialise at least once")
+        val segmentsPath = File(baseDir, "$BROUTER_ROOT_DIR/$SEGMENTS_SUB_DIR").toString()
 
         val profileName: String
         val profilePath: String
@@ -134,9 +120,49 @@ object BRouter {
             /*if (cr.errorMessage.contains("position not mapped in existing datafile")) {
                 // the location isn't a road or track, this depends on the profile!
             }*/
-            throw Exception("Routing error: " + cr.errorMessage)
+            return RouteResult(Exception("Routing error: " + cr.errorMessage))
         }
-        return cr.foundTrack
+        return RouteResult(cr.foundTrack)
+    }
+
+    /**
+     * Validate parameters and files exist that are required
+     *
+     * @param params Routing parameters
+     */
+    fun validateParams(params: RoutingParams): ValidationResult {
+
+        if (params.lats.isEmpty() || params.lons.isEmpty())
+            return ValidationResult(IllegalArgumentException("lats or lons (To/From/Via) must be set"))
+
+        if (params.bundledProfileFileName.isNullOrEmpty() && params.customProfileFilePath.isNullOrEmpty())
+            return ValidationResult(IllegalArgumentException("bundledProfileFileName or customProfileFilePath must be set"))
+
+        if (!params.customProfileFilePath.isNullOrEmpty() && !File(params.customProfileFilePath!!).exists())
+            return ValidationResult(IllegalArgumentException("customProfileFilePath file does not exist"))
+
+        val baseDir = params.baseDirectory
+        if (baseDir.isEmpty()) return ValidationResult(IllegalArgumentException("baseDirectory must be set"))
+
+        // check segments folder exists, this should be handled by the app.
+        val segmentsDir = File(baseDir, "$BROUTER_ROOT_DIR/$SEGMENTS_SUB_DIR")
+        if (!segmentsDir.exists()) return ValidationResult(Exception("'Segments' directory doesn't exist"))
+
+        // check the segment files exist for the lat lons
+        var i = 0
+        while (i < params.lats.size && i < params.lons.size) {
+            val fileName = Util.filenameForSegment(params.lats[i], params.lons[i])
+            if (!File(segmentsDir, "$fileName.rd5").exists())
+                return ValidationResult(Exception("Segment file $fileName doesn't exist for ${params.lats[i]},${params.lons[i]}"))
+            i++
+        }
+
+        // check profiles folder, if this doesn't exist initialise hasn't been called.
+        val profilesDir = File(baseDir, "$BROUTER_ROOT_DIR/$PROFILES_SUB_DIR")
+        if (!profilesDir.exists()) return ValidationResult(Exception("'Profiles' directory doesn't exist - Call initialise at least once"))
+
+        params.validated()
+        return ValidationResult(true)
     }
 
     private fun readPositions(params: RoutingParams): List<OsmNodeNamed> {
@@ -148,8 +174,8 @@ object BRouter {
         while (i < lats.size && i < lons.size) {
             val n = OsmNodeNamed()
             n.name = "via$i"
-            n.ilon = ((lons[i] + 180.0) * 1000000.0 + 0.5).toInt()
-            n.ilat = ((lats[i] + 90.0) * 1000000.0 + 0.5).toInt()
+            n.ilon = Util.longitudeDoubleToInt(lons[i])
+            n.ilat = Util.latitudeDoubleToInt(lats[i])
             wplist.add(n)
             i++
         }
@@ -168,8 +194,8 @@ object BRouter {
         while (i < lats.size && i < lons.size && i < radi.size) {
             val n = OsmNodeNamed()
             n.name = "nogo" + radi[i].toInt()
-            n.ilon = ((lons[i] + 180.0) * 1000000.0 + 0.5).toInt()
-            n.ilat = ((lats[i] + 90.0) * 1000000.0 + 0.5).toInt()
+            n.ilon = Util.longitudeDoubleToInt(lons[i])
+            n.ilat = Util.latitudeDoubleToInt(lats[i])
             n.isNogo = true
             n.nogoWeight = Double.NaN
             nogoList.add(n)

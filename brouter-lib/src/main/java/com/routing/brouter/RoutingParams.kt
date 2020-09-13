@@ -14,16 +14,20 @@ class RoutingParams private constructor(
     val noGoRadis: DoubleArray?,
     var startDirection: Int,
     var turnInstructionMode: Int,
-    var maxRunningTime: Long
+    var maxRunningTime: Long,
+    var validated: Boolean
 ) {
-
-    private constructor(builder: Builder) : this(builder.baseDirectory,
+        private constructor(builder: Builder) : this(builder.baseDirectory,
             Util.buildDoubleArray(builder.fromLat, builder.toLat, builder.viaLats),
             Util.buildDoubleArray(builder.fromLon, builder.toLon, builder.viaLons),
             builder.bundledProfile.file, builder.customProfile,
             Util.buildDoubleArray(builder.noGoLats), Util.buildDoubleArray(builder.noGoLons),
             Util.buildDoubleArray(builder.noGoRadis),
-            builder.startDirection, builder.turnInstructionMode.value, builder.maxRunningTime)
+            builder.startDirection, builder.turnInstructionMode.value, builder.maxRunningTime, false)
+
+    internal fun validated() {
+        validated = true
+    }
 
     class Builder(val baseDirectory: String) {
 

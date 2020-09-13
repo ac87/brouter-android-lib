@@ -8,35 +8,25 @@ import kotlin.math.max
 
 object Util {
 
-    @Throws(Exception::class)
-    fun fileEqual(fileBytes: ByteArray, file: File): Boolean {
-        if (!file.exists()) {
-            return false
-        }
-        val nbytes = fileBytes.size
-        var pos = 0
-        val blen = 8192
-        val buf = ByteArray(blen)
-        var inputStream: InputStream? = null
-        return try {
-            inputStream = FileInputStream(file)
-            while (pos < nbytes) {
-                val len = inputStream.read(buf, 0, blen)
-                if (len <= 0) return false
-                if (pos + len > nbytes) return false
-                for (j in 0 until len) {
-                    if (fileBytes[pos++] != buf[j]) {
-                        return false
-                    }
-                }
-            }
-            true
-        } finally {
-            if (inputStream != null) try {
-                inputStream.close()
-            } catch (io: IOException) {
-            }
-        }
+    fun filenameForSegment(lat: Double, lon: Double): String {
+        val latDegree = latitudeDoubleToInt(lat) / 1000000
+        val lonDegree = longitudeDoubleToInt(lon) / 1000000
+        val latMod5 = latDegree % 5
+        val lonMod5 = lonDegree % 5
+        val segLon: Int = lonDegree - 180 - lonMod5
+        val segLat: Int = latDegree - 90 - latMod5
+
+        val sLon = if (segLon < 0)
+            "W${-segLon}"
+        else
+            "E$segLon"
+
+        val sLat = if (segLat < 0)
+            "S${-segLat}"
+        else
+            "N$segLat"
+
+        return sLon + "_" + sLat
     }
 
     fun buildDoubleArray(from: Double, to: Double, vias: List<Double>): DoubleArray {
@@ -62,6 +52,12 @@ object Util {
             e.printStackTrace()
         }
     }
+
+    internal fun latitudeDoubleToInt(latitude: Double) =
+            ((latitude + 90.0) * 1000000.0 + 0.5).toInt()
+
+    internal fun longitudeDoubleToInt(longitude: Double) =
+            ((longitude + 180.0) * 1000000.0 + 0.5).toInt()
 
     @Throws(IOException::class)
     private fun copyFile(inputStream: InputStream, outputStream: OutputStream) {

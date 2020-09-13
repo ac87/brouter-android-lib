@@ -1,11 +1,18 @@
 package com.routing.brouter
 
 import com.routing.brouter.Util.buildDoubleArray
+import com.routing.brouter.Util.filenameForSegment
 import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertThat
 import org.junit.Test
 
 class UtilUnitTest {
+
+    @Test
+    fun `segmentfilename valid`() {
+        val segment = filenameForSegment(TEST_LAT_1, TEST_LON_1)
+        assertThat("W5_N50", `is`(segment))
+    }
 
     @Test
     fun `buildDoubleArray noVia`() {
@@ -47,5 +54,7 @@ class UtilUnitTest {
         const val TEST_LON_2 = -2.85
         const val TEST_LON_3 = -3.00
         const val TEST_LON_4 = -2.96
+
+        const val TEST_LAT_1 = 54.2
     }
 }

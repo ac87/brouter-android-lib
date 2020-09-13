@@ -42,10 +42,14 @@ class BRouterTest {
                 .to(54.542671, -2.966995)
                 .build()
 
-        val track = BRouter.generateRoute(params)
+        assertThat(params.validated, `is`(false))
+        BRouter.validateParams(params)
+        assertThat(params.validated, `is`(true))
 
-        assertThat(track, not(nullValue()))
-        assertThat(track!!.distance, `is`(9146))
+        val result = BRouter.generateRoute(params)
+
+        assertThat(result.track, not(nullValue()))
+        assertThat(result.track!!.distance, `is`(9146))
     }
 
     @Test
@@ -66,9 +70,29 @@ class BRouterTest {
                 .to(54.542671, -2.966995)
                 .build()
 
-        val track = BRouter.generateRoute(params)
+        val result = BRouter.generateRoute(params)
 
-        assertThat(track, not(nullValue()))
-        assertThat(track!!.distance, `is`(8753))
+        assertThat(params.validated, `is`(true))
+        assertThat(result.success, `is`(true))
+        assertThat(result.track, not(nullValue()))
+        assertThat(result.track!!.distance, `is`(8753))
+    }
+
+    @Test
+    fun validateParams_failure() {
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val dir = appContext.getExternalFilesDir(null)!!
+
+        val params = RoutingParams.Builder(dir)
+                .from(0.0, 0.0)
+                .to(0.0, 0.0)
+                .build()
+
+        assertThat(params.validated, `is`(false))
+        val result = BRouter.validateParams(params)
+        assertThat(params.validated, `is`(false))
+
+        assertThat(result.success, `is`(false))
+        assertThat(result.exception, not(nullValue()))
     }
 }
