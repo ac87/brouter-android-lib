@@ -1,6 +1,7 @@
 package com.routing.brouter
 
 import android.content.Context
+import android.os.Looper
 import btools.router.OsmNodeNamed
 import btools.router.RoutingContext
 import btools.router.RoutingEngine
@@ -22,6 +23,7 @@ object BRouter {
      * @param context context
      * @param baseDir base directory for the app i.e. Context.getExternalFilesDir(null)
      */
+    @JvmStatic
     fun initialise(context: Context, baseDir: File) {
         // make directories
         val routerDir = File(baseDir, BROUTER_ROOT_DIR)
@@ -31,7 +33,9 @@ object BRouter {
         val profilesDir = File(routerDir, PROFILES_SUB_DIR)
         if (!profilesDir.exists()) profilesDir.mkdir()
         // extract profiles from assets
-        Util.unzip(context.assets.open("profiles.zip"), profilesDir.toString())
+        val list = profilesDir.list()
+        if (profilesDir.isDirectory && list != null && list.isEmpty())
+            Util.unzip(context.assets.open("profiles.zip"), profilesDir.toString())
     }
 
     /**
@@ -63,7 +67,11 @@ object BRouter {
      * @param params route parameter
      * @return The track generated
      */
+    @JvmStatic
     fun generateRoute(params: RoutingParams): RouteResult {
+
+        if (Looper.myLooper() == Looper.getMainLooper())
+            throw IllegalArgumentException("Route generation called on Main Thread")
 
         if (!params.validated) {
             val validationResult = validateParams(params)
@@ -154,7 +162,7 @@ object BRouter {
         while (i < params.lats.size && i < params.lons.size) {
             val fileName = Util.filenameForSegment(params.lats[i], params.lons[i])
             if (!File(segmentsDir, "$fileName.rd5").exists())
-                return ValidationResult(Exception("Segment file $fileName doesn't exist for ${params.lats[i]},${params.lons[i]}"))
+                return ValidationResult(SegmentMissingException(fileName, params.lats[i], params.lons[i]))
             i++
         }
 
