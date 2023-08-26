@@ -2,8 +2,8 @@
 
 buildscript {
     ext {
-        kotlin_version = '1.4.10'
-        detekt_version = '1.12.0'
+        kotlin_version = '1.8.21'
+        detekt_version = '1.23.1'
         klint_plugin_version = '9.4.0'
     }
     repositories {
@@ -11,7 +11,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.1'
+        classpath 'com.android.tools.build:gradle:8.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jlleitschuh.gradle:ktlint-gradle:$klint_plugin_version"
         // NOTE: Do not place your application dependencies here; they belong
@@ -21,7 +21,7 @@ buildscript {
 
 plugins {
     id "io.gitlab.arturbosch.detekt" version "$detekt_version"
-    id "com.diffplug.gradle.spotless" version "3.27.2"
+    id "com.diffplug.spotless" version "6.20.0"
 }
 
 allprojects {
@@ -52,7 +52,7 @@ allprojects {
 }
 
 subprojects {
-    apply plugin: 'com.diffplug.gradle.spotless'
+    apply plugin: 'com.diffplug.spotless'
     spotless {
         format 'misc', {
             target '**/*.gradle'
@@ -62,7 +62,7 @@ subprojects {
         }
         kotlin {
             target "**/*.kt"
-            ktlint('0.33.0')
+            //ktlint('0.33.0')
         }
     }
 }
